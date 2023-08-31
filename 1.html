@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>First task</title>
+    <style>
+      body { margin: 0; }
+    </style>
+  </head>
+  <body>
+    <script src='https://unpkg.com/three@0.147.0/build/three.min.js'></script>
+    <script src='https://unpkg.com/three@0.147.0/examples/js/controls/OrbitControls.js'></script>
+    <script>
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+      const renderer = new THREE.WebGLRenderer();
+      let cube_size = Math.random() * 2 + 1;
+      const geometry = new THREE.BoxGeometry( cube_size, cube_size, cube_size, 2 );
+      const material = new THREE.MeshBasicMaterial( { color: 0xff3636, wireframe: false } );
+      const cube = new THREE.Mesh( geometry, material );
+      const raycaster = new THREE.Raycaster();
+      const mouse = new THREE.Vector2();
+      
+
+      controls = new THREE.OrbitControls( camera, renderer.domElement );
+      scene.background = new THREE.Color(0x7d7d7d);
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      document.body.appendChild( renderer.domElement );
+      camera.position.z = 10;
+
+      document.addEventListener('mousemove', function(event){
+          mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+          mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      });
+
+      document.addEventListener('click', function(event) {
+          const vec = new THREE.Vector3();
+
+          vec.set((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1, 0.5 );
+          vec.unproject( camera );
+          vec.sub( camera.position ).normalize();
+          let distance = - camera.position.z / vec.z;
+          vec.multiplyScalar( distance ).add(camera.position);
+
+          scene.add( cube );
+          cube.position.set( vec.x, vec.y, vec.z );
+          cube.scale.set(cube_size, cube_size, cube_size);
+      }, {once: true});
+
+      function animate() {
+        raycaster.setFromCamera(mouse, camera);
+        let intersects = raycaster.intersectObjects(scene.children);
+        if (intersects.length > 0){
+          for ( let i = 0; i < intersects.length; i ++ ) {
+              intersects[ i ].object.material.color.set( 0xff3636 );
+            }
+        } else {
+          cube.material.color.set(0x941e1e);
+        }
+
+        controls.update();
+        requestAnimationFrame( animate );
+        renderer.render( scene, camera );
+      };
+
+      animate();
+    </script>
+  </body>
+</html>

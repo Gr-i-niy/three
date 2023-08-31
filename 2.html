@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Second task</title>
+    <style>
+      body { margin: 0; }
+    </style>
+  </head>
+  <body>
+    <script src='https://unpkg.com/three@0.147.0/build/three.min.js'></script>
+    <script src='https://unpkg.com/three@0.147.0/examples/js/loaders/LDrawLoader.js'></script>
+    <script>
+      const scene = new THREE.Scene();
+      const renderer = new THREE.WebGLRenderer();
+      const loader = new THREE.LDrawLoader();
+      const clock = new THREE.Clock();
+      const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+      const gridHelper1 = new THREE.GridHelper( 20, 20 );
+      const gridHelper2 = new THREE.GridHelper( 20, 20 );
+      const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444 );
+      const car = new THREE.Object3D();
+      let angle = 0;
+
+
+      scene.add( gridHelper1 );
+      scene.add( gridHelper2 );
+      scene.add( hemiLight );
+      gridHelper2.position.set( 0, 0, -20);
+      hemiLight.position.set( 0, 20, 0 );
+      camera.position.set( 8, 8, 17 );
+      camera.lookAt(0, 0, 0);
+      scene.background = new THREE.Color(0xffffff);
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      document.body.appendChild( renderer.domElement );
+
+      loader.load(
+        'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/ldraw/officialLibrary/models/car.ldr_Packed.mpd',
+        function ( object ) {
+          car.copy(object);
+          car.rotateX(Math.PI);
+          scene.add(car);
+          car.scale.set(0.015, 0.015, 0.015);
+          car.position.y = 0.375;
+        });
+
+      function animate() {
+        delta = clock.getDelta();
+        requestAnimationFrame(animate);
+        car.position.x = Math.cos(angle) * 10;
+        car.position.z = Math.sin(angle) * 10;
+        car.rotateY(delta);
+        angle += delta;
+        renderer.render( scene, camera );
+      };
+
+      animate();
+    </script>
+  </body>
+</html>
